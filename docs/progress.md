@@ -14,7 +14,8 @@ The planned slices are described in [implementation.md](implementation.md).
 | 07    | complete | Three inspector tests failed against the placeholder panel before the form was implemented                                                     | `npm run verify` passed: 57 tests; five Chromium browser cases passed against the production build          | See Git history | Label and configuration now share one atomic graph command; the inspector deliberately uses native form controls.                                                  |
 | 08    | complete | Serializer and storage tests failed against explicit stubs; browser import assertion was refined to avoid Next's route announcer               | `npm run verify` passed: 67 tests; nine Chromium browser cases passed against the production build          | See Git history | Local storage is optional; corrupt saved data blocks automatic overwrite until an explicit replacement.                                                            |
 | 09    | complete | Three reducer tests failed against the stub for target updates, stable ordering and replay                                                     | `npm run verify` passed: 70 tests, lint, types, boundaries and production build                             | See Git history | Overlay begins with empty maps; idle is the renderer default. Events are sorted by time with authored-order ties.                                                  |
-| 10–14 | pending  | Not run                                                                                                                                        | Not run                                                                                                     | None            | None                                                                                                                                                               |
+| 10    | complete | Six controller cases failed against an explicit inert stub                                                                                     | `npm run verify` passed: 78 tests, lint, types, boundaries and production build                             | See Git history | Clock is injected; browser clock adapter is isolated in the editor layer.                                                                                          |
+| 11–14 | pending  | Not run                                                                                                                                        | Not run                                                                                                     | None            | None                                                                                                                                                               |
 
 Handoff after 00: the local repository is independent and connected to
 `https://github.com/vedbhoskar/flow-canvas`. Next execute slice 01: project
@@ -68,3 +69,8 @@ Handoff after 09: a clock-free reducer creates empty overlays and applies
 typed status, metric and log events without mutating the baseline. Stable
 timestamp ordering makes replay deterministic. Next execute slice 10:
 disposable playback controller with an injected clock.
+
+Handoff after 10: one frame is scheduled at a time. The controller handles
+timestamp-zero events, pause/resume, grouped stepping, restart, long-frame
+catch-up and exact completion, while invalidating stale callbacks on disposal.
+Next execute slice 11: connect playback to the editor and timeline.
