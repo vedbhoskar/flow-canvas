@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { createRegistry } from "@/core/modules/registry";
 import type { VisualizerProject } from "@/core/project/schema";
 import { builtInModules } from "@/modules";
+import { builtInPresentations } from "@/modules/presentation";
 import { Editor } from "@/features/editor/editor";
 import { ReactFlowProvider } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 const registry = createRegistry(builtInModules);
-const initialProject: VisualizerProject = {
+const emptyProject: VisualizerProject = {
   schemaVersion: 1,
   id: "untitled",
   name: "Untitled project",
@@ -18,11 +18,21 @@ const initialProject: VisualizerProject = {
   scenarios: [],
 };
 
-export default function StudioClient() {
-  const [store] = useState(() => initialProject);
+export default function StudioClient({
+  initialProject = emptyProject,
+  requestedProject = false,
+}: {
+  initialProject?: VisualizerProject;
+  requestedProject?: boolean;
+}) {
   return (
     <ReactFlowProvider>
-      <Editor registry={registry} initialProject={store} />
+      <Editor
+        registry={registry}
+        initialProject={initialProject}
+        presentations={builtInPresentations}
+        requestedProject={requestedProject}
+      />
     </ReactFlowProvider>
   );
 }

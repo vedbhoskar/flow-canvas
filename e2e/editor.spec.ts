@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("add, select, duplicate, delete and undo modules", async ({ page }) => {
-  await page.goto("/studio");
+  await page.goto("/studio?blank=1");
   const process = page.getByRole("button", { name: /Process Basics/ });
   await process.click();
   await expect(page.locator(".react-flow__node")).toHaveCount(1);
@@ -20,7 +20,7 @@ test("add, select, duplicate, delete and undo modules", async ({ page }) => {
 });
 
 test("drag a palette module onto the canvas", async ({ page }) => {
-  await page.goto("/studio");
+  await page.goto("/studio?blank=1");
   const canvas = page.getByRole("main", { name: "Canvas" });
   const bounds = await canvas.boundingBox();
   expect(bounds).not.toBeNull();
@@ -34,7 +34,7 @@ test("drag a palette module onto the canvas", async ({ page }) => {
 test("connect compatible ports, reject invalid ports, and restore a deleted subgraph", async ({
   page,
 }) => {
-  await page.goto("/studio");
+  await page.goto("/studio?blank=1");
   const canvas = page.getByRole("main", { name: "Canvas" });
   await page
     .getByRole("button", { name: /Process Basics/ })
@@ -66,7 +66,7 @@ test("connect compatible ports, reject invalid ports, and restore a deleted subg
 test("drop coordinates remain correct after zoom and a node drag is one undoable edit", async ({
   page,
 }) => {
-  await page.goto("/studio");
+  await page.goto("/studio?blank=1");
   await page.getByRole("button", { name: "Zoom in" }).click();
   const canvas = page.getByRole("main", { name: "Canvas" });
   const bounds = await canvas.boundingBox();
@@ -95,7 +95,7 @@ test("drop coordinates remain correct after zoom and a node drag is one undoable
 });
 
 test("inspector saves a property and undo restores it", async ({ page }) => {
-  await page.goto("/studio");
+  await page.goto("/studio?blank=1");
   await page.getByRole("button", { name: /Process Basics/ }).click();
   await page.locator(".react-flow__node").click();
   const inspector = page.getByRole("complementary", { name: "Inspector" });

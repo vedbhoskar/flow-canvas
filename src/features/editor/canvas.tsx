@@ -2,7 +2,9 @@
 
 import {
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type DragEvent,
   type RefObject,
@@ -16,7 +18,9 @@ import {
   type Connection,
   type EdgeChange,
   type NodeChange,
+  type NodeProps,
   useReactFlow,
+  useNodesInitialized,
 } from "@xyflow/react";
 import type { ModuleRegistry } from "../../core/modules/registry";
 import {
@@ -26,25 +30,47 @@ import {
 } from "../../adapters/react-flow/project";
 import type { EditorStore } from "./editor";
 import { NodeCard } from "./node-card";
-
-const nodeTypes = { module: NodeCard };
+import type { ModulePresentationMap } from "../../modules/presentation";
 
 export function Canvas({
   store,
   registry,
   canvasRef,
+  presentations,
 }: {
   store: EditorStore;
   registry: ModuleRegistry;
   canvasRef: RefObject<HTMLElement | null>;
+  presentations: ModulePresentationMap;
 }) {
+  const nodeTypes = useMemo(
+    () => ({
+      module: (props: NodeProps<ModuleFlowNode>) => (
+        <NodeCard {...props} presentations={presentations} />
+      ),
+    }),
+    [presentations],
+  );
   const project = useStore(store, (state) => state.history.present);
+  const fitInitialProject = useRef(project.nodes.length > 0);
+  const didInitialFit = useRef(false);
+  const nodesInitialized = useNodesInitialized();
   const selectedNodeIds = useStore(store, (state) => state.selectedNodeIds);
   const selectedEdgeIds = useStore(store, (state) => state.selectedEdgeIds);
   const movementDraft = useStore(store, (state) => state.movementDraft);
   const mode = useStore(store, (state) => state.mode);
   const overlay = useStore(store, (state) => state.playback?.snapshot.overlay);
   const flow = useReactFlow<ModuleFlowNode>();
+  useEffect(() => {
+    if (
+      !fitInitialProject.current ||
+      didInitialFit.current ||
+      !nodesInitialized
+    )
+      return;
+    didInitialFit.current = true;
+    void flow.fitView({ padding: 0.18, maxZoom: 1 });
+  }, [flow, nodesInitialized]);
   const [error, setError] = useState("");
   const projected = useMemo(
     () =>

@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "id": "example-api-lifecycle",
+  "name": "API lifecycle",
+  "description": "Scripted demonstration of a request passing an authentication gate, reaching a service and database, with a parallel denied branch.",
+  "nodes": [
+    {
+      "id": "gateway",
+      "moduleType": "system.service",
+      "label": "API Gateway",
+      "position": { "x": 0, "y": 130 },
+      "config": { "protocol": "HTTP", "latencyMs": 35 }
+    },
+    {
+      "id": "auth",
+      "moduleType": "basic.decision",
+      "label": "Authentication",
+      "position": { "x": 270, "y": 130 },
+      "config": { "condition": "Valid token?" }
+    },
+    {
+      "id": "service",
+      "moduleType": "system.service",
+      "label": "Application",
+      "position": { "x": 540, "y": 20 },
+      "config": { "protocol": "RPC", "latencyMs": 80 }
+    },
+    {
+      "id": "database",
+      "moduleType": "system.database",
+      "label": "Database",
+      "position": { "x": 810, "y": 20 },
+      "config": { "engine": "PostgreSQL", "readOnly": false }
+    },
+    {
+      "id": "denied",
+      "moduleType": "basic.process",
+      "label": "Access denied",
+      "position": { "x": 540, "y": 250 },
+      "config": { "description": "Rejected request branch" }
+    }
+  ],
+  "edges": [
+    {
+      "id": "gateway-auth",
+      "sourceNodeId": "gateway",
+      "sourcePortId": "out",
+      "targetNodeId": "auth",
+      "targetPortId": "in"
+    },
+    {
+      "id": "auth-service",
+      "sourceNodeId": "auth",
+      "sourcePortId": "yes",
+      "targetNodeId": "service",
+      "targetPortId": "in",
+      "label": "valid"
+    },
+    {
+      "id": "service-database",
+      "sourceNodeId": "service",
+      "sourcePortId": "out",
+      "targetNodeId": "database",
+      "targetPortId": "in"
+    },
+    {
+      "id": "auth-denied",
+      "sourceNodeId": "auth",
+      "sourcePortId": "no",
+      "targetNodeId": "denied",
+      "targetPortId": "in",
+      "label": "invalid"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "api-demo",
+      "name": "Two request outcomes",
+      "durationMs": 3000,
+      "events": [
+        {
+          "id": "a1",
+          "atMs": 0,
+          "type": "node.status",
+          "nodeId": "gateway",
+          "status": "active"
+        },
+        {
+          "id": "a2",
+          "atMs": 0,
+          "type": "log.append",
+          "message": "Incoming requests arrive at the gateway",
+          "level": "info"
+        },
+        {
+          "id": "a3",
+          "atMs": 400,
+          "type": "edge.status",
+          "edgeId": "gateway-auth",
+          "status": "active"
+        },
+        {
+          "id": "a4",
+          "atMs": 400,
+          "type": "node.status",
+          "nodeId": "auth",
+          "status": "active"
+        },
+        {
+          "id": "a5",
+          "atMs": 800,
+          "type": "node.status",
+          "nodeId": "auth",
+          "status": "success"
+        },
+        {
+          "id": "a6",
+          "atMs": 800,
+          "type": "edge.status",
+          "edgeId": "auth-service",
+          "status": "active"
+        },
+        {
+          "id": "a7",
+          "atMs": 800,
+          "type": "node.status",
+          "nodeId": "service",
+          "status": "active"
+        },
+        {
+          "id": "a8",
+          "atMs": 1300,
+          "type": "edge.status",
+          "edgeId": "auth-denied",
+          "status": "warning"
+        },
+        {
+          "id": "a9",
+          "atMs": 1300,
+          "type": "node.status",
+          "nodeId": "denied",
+          "status": "warning"
+        },
+        {
+          "id": "a10",
+          "atMs": 1300,
+          "type": "log.append",
+          "message": "A second request is denied",
+          "level": "warning",
+          "nodeId": "denied"
+        },
+        {
+          "id": "a11",
+          "atMs": 1800,
+          "type": "edge.status",
+          "edgeId": "service-database",
+          "status": "active"
+        },
+        {
+          "id": "a12",
+          "atMs": 1800,
+          "type": "node.status",
+          "nodeId": "database",
+          "status": "active"
+        },
+        {
+          "id": "a13",
+          "atMs": 2400,
+          "type": "node.status",
+          "nodeId": "database",
+          "status": "success"
+        },
+        {
+          "id": "a14",
+          "atMs": 2600,
+          "type": "node.status",
+          "nodeId": "service",
+          "status": "success"
+        },
+        {
+          "id": "a15",
+          "atMs": 3000,
+          "type": "node.status",
+          "nodeId": "gateway",
+          "status": "success"
+        },
+        {
+          "id": "a16",
+          "atMs": 3000,
+          "type": "edge.status",
+          "edgeId": "auth-service",
+          "status": "success"
+        },
+        {
+          "id": "a17",
+          "atMs": 3000,
+          "type": "edge.status",
+          "edgeId": "service-database",
+          "status": "success"
+        },
+        {
+          "id": "a18",
+          "atMs": 3000,
+          "type": "log.append",
+          "message": "Approved request completed",
+          "level": "info",
+          "nodeId": "gateway"
+        }
+      ]
+    }
+  ]
+}

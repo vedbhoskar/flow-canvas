@@ -15,7 +15,7 @@ const file = (content: string) => ({
 });
 
 test("autosaves a document and restores it after reload", async ({ page }) => {
-  await page.goto("/studio");
+  await page.goto("/studio?blank=1");
   await page.getByRole("button", { name: /Process Basics/ }).click();
   await expect(page.locator(".react-flow__node")).toHaveCount(1);
   await page.getByLabel("Project files").click();
@@ -27,7 +27,7 @@ test("autosaves a document and restores it after reload", async ({ page }) => {
 test("invalid import preserves work and project replacement requires confirmation", async ({
   page,
 }) => {
-  await page.goto("/studio");
+  await page.goto("/studio?blank=1");
   await page.getByRole("button", { name: /Process Basics/ }).click();
   await page.getByLabel("Choose project JSON").setInputFiles(file("{broken"));
   await expect(page.getByText("Project file is not valid JSON")).toBeVisible();
@@ -48,7 +48,7 @@ test("invalid import preserves work and project replacement requires confirmatio
 });
 
 test("exports a project JSON download", async ({ page }) => {
-  await page.goto("/studio");
+  await page.goto("/studio?blank=1");
   await page.getByLabel("Project files").click();
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export JSON" }).click();
@@ -59,7 +59,7 @@ test("exports a project JSON download", async ({ page }) => {
 test("new project can be cancelled before replacing a populated canvas", async ({
   page,
 }) => {
-  await page.goto("/studio");
+  await page.goto("/studio?blank=1");
   await page.getByRole("button", { name: /Process Basics/ }).click();
   await page.getByLabel("Project files").click();
   page.once("dialog", (dialog) => dialog.dismiss());

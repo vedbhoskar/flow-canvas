@@ -16,7 +16,8 @@ The planned slices are described in [implementation.md](implementation.md).
 | 09    | complete | Three reducer tests failed against the stub for target updates, stable ordering and replay                                                     | `npm run verify` passed: 70 tests, lint, types, boundaries and production build                             | See Git history | Overlay begins with empty maps; idle is the renderer default. Events are sorted by time with authored-order ties.                                                  |
 | 10    | complete | Six controller cases failed against an explicit inert stub                                                                                     | `npm run verify` passed: 78 tests, lint, types, boundaries and production build                             | See Git history | Clock is injected; browser clock adapter is isolated in the editor layer.                                                                                          |
 | 11    | complete | Store bridge and UI cases failed before playback actions existed; browser assertions exposed ambiguous Play/log matches                        | `npm run verify` passed: 83 tests; ten Chromium browser cases passed against production build               | See Git history | Present is an in-app presentation layout; it does not request OS fullscreen.                                                                                       |
-| 12–14 | pending  | Not run                                                                                                                                        | Not run                                                                                                     | None            | None                                                                                                                                                               |
+| 12    | complete | Extension test first exposed the palette's whitespace-free accessible name; gallery browser test caught a broad text locator                   | `npm run verify` passed: 89 tests and production build; 12 Chromium cases passed                            | See Git history | Example replacement uses a native confirmation; scripted scenarios do not claim live blockchain activity.                                                          |
+| 13–14 | pending  | Not run                                                                                                                                        | Not run                                                                                                     | None            | None                                                                                                                                                               |
 
 Handoff after 00: the local repository is independent and connected to
 `https://github.com/vedbhoskar/flow-canvas`. Next execute slice 01: project
@@ -82,3 +83,9 @@ toolbar exposes scenario selection, Simulate/Present, play/pause/step/restart
 and exit; the timeline shows elapsed time, filtered events and a polite latest
 log announcement. Strict Mode unmount cancels the runner. Next execute slice
 12: bundled examples and extension guidance.
+
+Handoff after 12: three validated, three-second scripted projects appear in a
+gallery, including the pool/veto/fragmentation/resale flow. Fresh studio opens
+the API story; a saved document takes priority until the user confirms a
+replacement. The extension fixture adds a custom module and icon solely via
+public contracts. Next execute slice 13: accessibility and presentation QA.

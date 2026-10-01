@@ -156,4 +156,27 @@ describe("local project storage", () => {
     expect(failing.getSnapshot().kind).toBe("unsaved");
     failing.dispose();
   });
+
+  it("does not rehydrate stale storage during Strict Mode effect replay", () => {
+    vi.useFakeTimers();
+    const values = new Map([[PROJECT_STORAGE_KEY, JSON.stringify(project)]]);
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        values.set(key, value);
+      },
+    };
+    const store = createEditorStore({ ...project, name: "Example" }, registry);
+    const persistence = new ProjectPersistence(store, registry, () => storage);
+    persistence.start();
+    expect(store.getState().history.present.name).toBe("Saved");
+    store.getState().replaceProject({ ...project, name: "Example" });
+    persistence.afterExplicitReplacement();
+    persistence.dispose();
+    persistence.start();
+    expect(store.getState().history.present.name).toBe("Example");
+    vi.advanceTimersByTime(500);
+    expect(JSON.parse(values.get(PROJECT_STORAGE_KEY)!).name).toBe("Example");
+    persistence.dispose();
+  });
 });

@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "id": "example-agent-research",
+  "name": "Agent research",
+  "description": "Scripted parallel research by two agents, followed by review and a progress metric.",
+  "nodes": [
+    {
+      "id": "planner",
+      "moduleType": "agent.worker",
+      "label": "Research planner",
+      "position": { "x": 0, "y": 130 },
+      "config": { "role": "Planner", "task": "Split the question" }
+    },
+    {
+      "id": "web",
+      "moduleType": "agent.worker",
+      "label": "Web researcher",
+      "position": { "x": 270, "y": 0 },
+      "config": { "role": "Web research", "task": "Find public sources" }
+    },
+    {
+      "id": "docs",
+      "moduleType": "agent.worker",
+      "label": "Document researcher",
+      "position": { "x": 270, "y": 260 },
+      "config": {
+        "role": "Document research",
+        "task": "Examine supplied files"
+      }
+    },
+    {
+      "id": "review",
+      "moduleType": "basic.process",
+      "label": "Synthesis & review",
+      "position": { "x": 580, "y": 130 },
+      "config": { "description": "Compare findings before presenting" }
+    },
+    {
+      "id": "progress",
+      "moduleType": "utility.metric",
+      "label": "Progress",
+      "position": { "x": 880, "y": 130 },
+      "config": { "initialValue": 0, "unit": "%" }
+    }
+  ],
+  "edges": [
+    {
+      "id": "planner-web",
+      "sourceNodeId": "planner",
+      "sourcePortId": "out",
+      "targetNodeId": "web",
+      "targetPortId": "in"
+    },
+    {
+      "id": "planner-docs",
+      "sourceNodeId": "planner",
+      "sourcePortId": "out",
+      "targetNodeId": "docs",
+      "targetPortId": "in"
+    },
+    {
+      "id": "web-review",
+      "sourceNodeId": "web",
+      "sourcePortId": "out",
+      "targetNodeId": "review",
+      "targetPortId": "in"
+    },
+    {
+      "id": "docs-review",
+      "sourceNodeId": "docs",
+      "sourcePortId": "out",
+      "targetNodeId": "review",
+      "targetPortId": "in"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "research-demo",
+      "name": "Parallel research",
+      "durationMs": 3000,
+      "events": [
+        {
+          "id": "r1",
+          "atMs": 0,
+          "type": "node.status",
+          "nodeId": "planner",
+          "status": "active"
+        },
+        {
+          "id": "r2",
+          "atMs": 0,
+          "type": "metric.set",
+          "nodeId": "progress",
+          "value": 0
+        },
+        {
+          "id": "r3",
+          "atMs": 0,
+          "type": "log.append",
+          "message": "Planner divides the work",
+          "level": "info",
+          "nodeId": "planner"
+        },
+        {
+          "id": "r4",
+          "atMs": 500,
+          "type": "node.status",
+          "nodeId": "planner",
+          "status": "success"
+        },
+        {
+          "id": "r5",
+          "atMs": 500,
+          "type": "edge.status",
+          "edgeId": "planner-web",
+          "status": "active"
+        },
+        {
+          "id": "r6",
+          "atMs": 500,
+          "type": "edge.status",
+          "edgeId": "planner-docs",
+          "status": "active"
+        },
+        {
+          "id": "r7",
+          "atMs": 500,
+          "type": "node.status",
+          "nodeId": "web",
+          "status": "active"
+        },
+        {
+          "id": "r8",
+          "atMs": 500,
+          "type": "node.status",
+          "nodeId": "docs",
+          "status": "active"
+        },
+        {
+          "id": "r9",
+          "atMs": 500,
+          "type": "metric.set",
+          "nodeId": "progress",
+          "value": 25
+        },
+        {
+          "id": "r10",
+          "atMs": 1200,
+          "type": "node.status",
+          "nodeId": "docs",
+          "status": "success"
+        },
+        {
+          "id": "r11",
+          "atMs": 1200,
+          "type": "edge.status",
+          "edgeId": "docs-review",
+          "status": "active"
+        },
+        {
+          "id": "r12",
+          "atMs": 1200,
+          "type": "metric.set",
+          "nodeId": "progress",
+          "value": 55
+        },
+        {
+          "id": "r13",
+          "atMs": 1600,
+          "type": "node.status",
+          "nodeId": "web",
+          "status": "success"
+        },
+        {
+          "id": "r14",
+          "atMs": 1600,
+          "type": "edge.status",
+          "edgeId": "web-review",
+          "status": "active"
+        },
+        {
+          "id": "r15",
+          "atMs": 1600,
+          "type": "metric.set",
+          "nodeId": "progress",
+          "value": 80
+        },
+        {
+          "id": "r16",
+          "atMs": 2000,
+          "type": "node.status",
+          "nodeId": "review",
+          "status": "active"
+        },
+        {
+          "id": "r17",
+          "atMs": 2000,
+          "type": "log.append",
+          "message": "Findings are being reviewed",
+          "level": "info",
+          "nodeId": "review"
+        },
+        {
+          "id": "r18",
+          "atMs": 3000,
+          "type": "node.status",
+          "nodeId": "review",
+          "status": "success"
+        },
+        {
+          "id": "r19",
+          "atMs": 3000,
+          "type": "metric.set",
+          "nodeId": "progress",
+          "value": 100
+        },
+        {
+          "id": "r20",
+          "atMs": 3000,
+          "type": "log.append",
+          "message": "Research summary is ready",
+          "level": "info",
+          "nodeId": "review"
+        }
+      ]
+    }
+  ]
+}

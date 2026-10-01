@@ -6,6 +6,7 @@ import { useStore } from "zustand";
 import type { ModuleRegistry } from "../../core/modules/registry";
 import type { VisualizerProject } from "../../core/project/schema";
 import type { PlaybackClock } from "../../core/scenario/controller";
+import type { ModulePresentationMap } from "../../modules/presentation";
 import { createEditorStore } from "./store";
 import { Taskbar } from "./taskbar";
 import { Palette } from "./palette";
@@ -16,6 +17,7 @@ import { ProjectPersistence } from "./persistence";
 import { createBrowserClock } from "./browser-clock";
 
 export type EditorStore = ReturnType<typeof createEditorStore>;
+const emptyPresentations: ModulePresentationMap = {};
 
 function subscribeToDesktop(onChange: () => void) {
   if (typeof window.matchMedia !== "function") return () => {};
@@ -35,20 +37,41 @@ export function Editor({
   registry,
   initialProject,
   clockFactory = createBrowserClock,
+  presentations = emptyPresentations,
+  requestedProject = false,
 }: {
   registry: ModuleRegistry;
   initialProject: VisualizerProject;
   clockFactory?: () => PlaybackClock;
+  presentations?: ModulePresentationMap;
+  requestedProject?: boolean;
 }) {
   const [store] = useState(() => createEditorStore(initialProject, registry));
   const [persistence] = useState(() => new ProjectPersistence(store, registry));
+  const handledRequest = useRef(false);
   useEffect(() => {
     persistence.start();
+    if (requestedProject && !handledRequest.current) {
+      handledRequest.current = true;
+      const current = store.getState().history.present;
+      const differs =
+        JSON.stringify(current) !== JSON.stringify(initialProject);
+      if (
+        (differs || persistence.getSnapshot().kind === "recovery_required") &&
+        window.confirm(
+          "Replace your current project with this example? Unsaved changes will be lost.",
+        )
+      ) {
+        persistence.flush();
+        store.getState().replaceProject(initialProject);
+        persistence.afterExplicitReplacement();
+      }
+    }
     return () => {
       persistence.dispose();
       store.getState().exitPlayback();
     };
-  }, [persistence, store]);
+  }, [initialProject, persistence, requestedProject, store]);
   const canvasRef = useRef<HTMLElement>(null);
   const flow = useReactFlow();
   const mode = useStore(store, (state) => state.mode);
@@ -102,10 +125,16 @@ export function Editor({
             registry={registry}
             onAdd={addModule}
             editable={mode === "edit"}
+            presentations={presentations}
           />
         )}
         <div className="flex min-w-0 flex-1 flex-col">
-          <Canvas store={store} registry={registry} canvasRef={canvasRef} />
+          <Canvas
+            store={store}
+            registry={registry}
+            canvasRef={canvasRef}
+            presentations={presentations}
+          />
           <Timeline store={store} />
         </div>
         {showInspector && mode !== "present" && (

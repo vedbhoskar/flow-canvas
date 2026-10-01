@@ -5,7 +5,7 @@ import type { VisualizerProject } from "../../core/project/schema";
 import type { Overlay, VisualStatus } from "../../core/scenario/reducer";
 
 export type ProjectionOverlay = Partial<
-  Pick<Overlay, "nodeStatus" | "edgeStatus">
+  Pick<Overlay, "nodeStatus" | "edgeStatus" | "metrics">
 >;
 export type ModuleNodeData = {
   title: string;
@@ -14,6 +14,8 @@ export type ModuleNodeData = {
   moduleType: string;
   ports: readonly PortDefinition[];
   status: VisualStatus;
+  metricValue: number | undefined;
+  metricUnit: string | undefined;
 };
 export type ModuleFlowNode = Node<ModuleNodeData, "module">;
 export type ModuleFlowEdge = Edge;
@@ -35,6 +37,12 @@ export function projectToFlow(
   return {
     nodes: project.nodes.map((node) => {
       const definition = registry.get(node.moduleType);
+      const config =
+        typeof node.config === "object" &&
+        node.config !== null &&
+        !Array.isArray(node.config)
+          ? node.config
+          : {};
       return {
         id: node.id,
         type: "module",
@@ -47,6 +55,13 @@ export function projectToFlow(
           moduleType: node.moduleType,
           ports: definition?.ports ?? [],
           status: overlay.nodeStatus?.[node.id] ?? "idle",
+          metricValue:
+            overlay.metrics?.[node.id] ??
+            (definition?.supportsMetric &&
+            typeof config.initialValue === "number"
+              ? config.initialValue
+              : undefined),
+          metricUnit: typeof config.unit === "string" ? config.unit : undefined,
         },
       };
     }),

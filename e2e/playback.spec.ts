@@ -50,7 +50,7 @@ const project = {
 test("play, pause, step, restart and presentation keep the document intact", async ({
   page,
 }) => {
-  await page.goto("/studio");
+  await page.goto("/studio?blank=1");
   await page.getByLabel("Choose project JSON").setInputFiles({
     name: "playback.json",
     mimeType: "application/json",

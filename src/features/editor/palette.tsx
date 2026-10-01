@@ -1,38 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  IconSearch,
-  IconBox,
-  IconArrowsSplit,
-  IconServer,
-  IconDatabase,
-  IconRobot,
-  IconDroplet,
-  IconChartBar,
-  IconNote,
-} from "@tabler/icons-react";
+import { IconSearch } from "@tabler/icons-react";
 import type { ModuleRegistry } from "../../core/modules/registry";
-
-const icons = [
-  IconBox,
-  IconArrowsSplit,
-  IconServer,
-  IconDatabase,
-  IconRobot,
-  IconDroplet,
-  IconChartBar,
-  IconNote,
-];
+import {
+  fallbackIcon,
+  type ModulePresentationMap,
+} from "../../modules/presentation";
 
 export function Palette({
   registry,
   onAdd,
   editable = true,
+  presentations = {},
 }: {
   registry: ModuleRegistry;
   onAdd(type: string): void;
   editable?: boolean;
+  presentations?: ModulePresentationMap;
 }) {
   const [query, setQuery] = useState("");
   const modules = useMemo(
@@ -75,10 +60,7 @@ export function Palette({
           </p>
         )}
         {modules.map((module) => {
-          const index = registry
-            .list()
-            .findIndex((item) => item.type === module.type);
-          const Icon = icons[index] ?? IconBox;
+          const Icon = presentations[module.type]?.icon ?? fallbackIcon;
           return (
             <button
               key={module.type}

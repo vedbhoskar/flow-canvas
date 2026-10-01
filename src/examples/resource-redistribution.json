@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "id": "example-resource-redistribution",
+  "name": "Resource redistribution",
+  "description": "Scripted capacity allocation: one pool serves four nodes; Node 4 vetoes an allocation, fragments its excess and transfers it to Node 5.",
+  "nodes": [
+    {
+      "id": "pool",
+      "moduleType": "simulation.pool",
+      "label": "Resource pool · 100 units",
+      "position": { "x": 0, "y": 180 },
+      "config": { "capacity": 100, "unit": "units" }
+    },
+    {
+      "id": "node-1",
+      "moduleType": "basic.process",
+      "label": "Node 1 · 20 units",
+      "position": { "x": 300, "y": 0 },
+      "config": { "description": "Primary allocation" }
+    },
+    {
+      "id": "node-2",
+      "moduleType": "basic.process",
+      "label": "Node 2 · 25 units",
+      "position": { "x": 300, "y": 140 },
+      "config": { "description": "Primary allocation" }
+    },
+    {
+      "id": "node-3",
+      "moduleType": "basic.process",
+      "label": "Node 3 · 20 units",
+      "position": { "x": 300, "y": 280 },
+      "config": { "description": "Primary allocation" }
+    },
+    {
+      "id": "node-4",
+      "moduleType": "basic.decision",
+      "label": "Node 4 · veto / fragmentation",
+      "position": { "x": 300, "y": 420 },
+      "config": { "condition": "Fragment unused allocation?" }
+    },
+    {
+      "id": "node-5",
+      "moduleType": "basic.process",
+      "label": "Node 5 · secondary buyer",
+      "position": { "x": 660, "y": 420 },
+      "config": { "description": "Receives fragmented excess from Node 4" }
+    },
+    {
+      "id": "unused",
+      "moduleType": "utility.metric",
+      "label": "Unallocated capacity",
+      "position": { "x": 660, "y": 0 },
+      "config": { "initialValue": 20, "unit": "units" }
+    }
+  ],
+  "edges": [
+    {
+      "id": "pool-1",
+      "sourceNodeId": "pool",
+      "sourcePortId": "out",
+      "targetNodeId": "node-1",
+      "targetPortId": "in"
+    },
+    {
+      "id": "pool-2",
+      "sourceNodeId": "pool",
+      "sourcePortId": "out",
+      "targetNodeId": "node-2",
+      "targetPortId": "in"
+    },
+    {
+      "id": "pool-3",
+      "sourceNodeId": "pool",
+      "sourcePortId": "out",
+      "targetNodeId": "node-3",
+      "targetPortId": "in"
+    },
+    {
+      "id": "pool-4",
+      "sourceNodeId": "pool",
+      "sourcePortId": "out",
+      "targetNodeId": "node-4",
+      "targetPortId": "in"
+    },
+    {
+      "id": "resale-5",
+      "sourceNodeId": "node-4",
+      "sourcePortId": "yes",
+      "targetNodeId": "node-5",
+      "targetPortId": "in",
+      "label": "secondary resale"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "redistribution-demo",
+      "name": "Three-second session",
+      "durationMs": 3000,
+      "events": [
+        {
+          "id": "d1",
+          "atMs": 0,
+          "type": "node.status",
+          "nodeId": "pool",
+          "status": "active"
+        },
+        {
+          "id": "d2",
+          "atMs": 0,
+          "type": "metric.set",
+          "nodeId": "unused",
+          "value": 20
+        },
+        {
+          "id": "d3",
+          "atMs": 0,
+          "type": "log.append",
+          "message": "Pool opens a 100-unit allocation session",
+          "level": "info",
+          "nodeId": "pool"
+        },
+        {
+          "id": "d4",
+          "atMs": 350,
+          "type": "edge.status",
+          "edgeId": "pool-1",
+          "status": "active"
+        },
+        {
+          "id": "d5",
+          "atMs": 350,
+          "type": "edge.status",
+          "edgeId": "pool-2",
+          "status": "active"
+        },
+        {
+          "id": "d6",
+          "atMs": 350,
+          "type": "edge.status",
+          "edgeId": "pool-3",
+          "status": "active"
+        },
+        {
+          "id": "d7",
+          "atMs": 350,
+          "type": "edge.status",
+          "edgeId": "pool-4",
+          "status": "active"
+        },
+        {
+          "id": "d8",
+          "atMs": 350,
+          "type": "node.status",
+          "nodeId": "node-1",
+          "status": "active"
+        },
+        {
+          "id": "d9",
+          "atMs": 350,
+          "type": "node.status",
+          "nodeId": "node-2",
+          "status": "active"
+        },
+        {
+          "id": "d10",
+          "atMs": 350,
+          "type": "node.status",
+          "nodeId": "node-3",
+          "status": "active"
+        },
+        {
+          "id": "d11",
+          "atMs": 350,
+          "type": "node.status",
+          "nodeId": "node-4",
+          "status": "active"
+        },
+        {
+          "id": "d12",
+          "atMs": 900,
+          "type": "node.status",
+          "nodeId": "node-1",
+          "status": "success"
+        },
+        {
+          "id": "d13",
+          "atMs": 900,
+          "type": "node.status",
+          "nodeId": "node-2",
+          "status": "success"
+        },
+        {
+          "id": "d14",
+          "atMs": 900,
+          "type": "node.status",
+          "nodeId": "node-3",
+          "status": "success"
+        },
+        {
+          "id": "d15",
+          "atMs": 900,
+          "type": "node.status",
+          "nodeId": "node-4",
+          "status": "warning"
+        },
+        {
+          "id": "d16",
+          "atMs": 900,
+          "type": "log.append",
+          "message": "Node 4 vetoes its primary allocation; unused capacity fragments",
+          "level": "warning",
+          "nodeId": "node-4"
+        },
+        {
+          "id": "d17",
+          "atMs": 1400,
+          "type": "edge.status",
+          "edgeId": "resale-5",
+          "status": "active"
+        },
+        {
+          "id": "d18",
+          "atMs": 1400,
+          "type": "node.status",
+          "nodeId": "node-5",
+          "status": "active"
+        },
+        {
+          "id": "d19",
+          "atMs": 1400,
+          "type": "metric.set",
+          "nodeId": "unused",
+          "value": 5
+        },
+        {
+          "id": "d20",
+          "atMs": 1400,
+          "type": "log.append",
+          "message": "Node 4 resells 15 units to Node 5",
+          "level": "info",
+          "nodeId": "node-5"
+        },
+        {
+          "id": "d21",
+          "atMs": 2200,
+          "type": "node.status",
+          "nodeId": "node-5",
+          "status": "success"
+        },
+        {
+          "id": "d22",
+          "atMs": 2200,
+          "type": "edge.status",
+          "edgeId": "resale-5",
+          "status": "success"
+        },
+        {
+          "id": "d23",
+          "atMs": 2200,
+          "type": "metric.set",
+          "nodeId": "unused",
+          "value": 0
+        },
+        {
+          "id": "d24",
+          "atMs": 3000,
+          "type": "node.status",
+          "nodeId": "pool",
+          "status": "success"
+        },
+        {
+          "id": "d25",
+          "atMs": 3000,
+          "type": "log.append",
+          "message": "Session closes with secondary allocation complete",
+          "level": "info",
+          "nodeId": "pool"
+        }
+      ]
+    }
+  ]
+}

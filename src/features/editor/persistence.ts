@@ -17,6 +17,8 @@ export class ProjectPersistence {
   private unsubscribeStore: (() => void) | null = null;
   private adapter: ReturnType<typeof createLocalProjectStorage> | null = null;
   private blocked = false;
+  private hydrated = false;
+  private pending = false;
 
   constructor(
     private store: EditorStore,
@@ -42,26 +44,32 @@ export class ProjectPersistence {
 
   start() {
     if (this.unsubscribeStore) return;
-    this.adapter = createLocalProjectStorage(this.getStorage(), this.registry);
-    const loaded = this.adapter.load();
-    if (loaded.state === "valid") {
-      const result = this.store.getState().replaceProject(loaded.project);
-      this.setStatus(
-        result.ok
-          ? { kind: "saved" }
-          : {
-              kind: "recovery_required",
-              message: "Saved project failed validation",
-            },
+    if (!this.hydrated) {
+      this.adapter = createLocalProjectStorage(
+        this.getStorage(),
+        this.registry,
       );
-      this.blocked = !result.ok;
-    } else if (loaded.state === "corrupt") {
-      this.blocked = true;
-      this.setStatus({ kind: "recovery_required", message: loaded.message });
-    } else
-      this.setStatus({
-        kind: loaded.state === "empty" ? "saved" : "unavailable",
-      });
+      const loaded = this.adapter.load();
+      if (loaded.state === "valid") {
+        const result = this.store.getState().replaceProject(loaded.project);
+        this.setStatus(
+          result.ok
+            ? { kind: "saved" }
+            : {
+                kind: "recovery_required",
+                message: "Saved project failed validation",
+              },
+        );
+        this.blocked = !result.ok;
+      } else if (loaded.state === "corrupt") {
+        this.blocked = true;
+        this.setStatus({ kind: "recovery_required", message: loaded.message });
+      } else
+        this.setStatus({
+          kind: loaded.state === "empty" ? "saved" : "unavailable",
+        });
+      this.hydrated = true;
+    }
     this.unsubscribeStore = this.store.subscribe((next, previous) => {
       if (
         next.history.present !== previous.history.present ||
@@ -69,11 +77,13 @@ export class ProjectPersistence {
       )
         this.schedule();
     });
+    if (this.pending) this.schedule();
   }
 
   private schedule() {
     if (this.blocked) return;
     if (this.timer) clearTimeout(this.timer);
+    this.pending = true;
     this.setStatus({ kind: "unsaved" });
     this.timer = setTimeout(() => this.flush(), 500);
   }
@@ -86,6 +96,7 @@ export class ProjectPersistence {
     if (this.blocked || !this.adapter) return;
     const { history, viewport } = this.store.getState();
     const result = this.adapter.save(history.present, viewport);
+    this.pending = !result.ok;
     this.setStatus(
       result.ok
         ? { kind: "saved" }
