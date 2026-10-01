@@ -72,6 +72,49 @@ export function Editor({
       store.getState().exitPlayback();
     };
   }, [initialProject, persistence, requestedProject, store]);
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const state = store.getState();
+      if (event.key === "Escape" && state.mode === "present") {
+        event.preventDefault();
+        state.exitPlayback();
+        return;
+      }
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.closest("input, textarea, select, [contenteditable='true']") ||
+          target.isContentEditable)
+      )
+        return;
+      if (state.mode !== "edit") return;
+      const command = event.metaKey || event.ctrlKey;
+      if (command && !event.altKey && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        if (event.shiftKey) state.redo();
+        else state.undo();
+      } else if (command && !event.altKey && event.key.toLowerCase() === "y") {
+        event.preventDefault();
+        state.redo();
+      } else if (
+        !command &&
+        !event.altKey &&
+        (event.key === "Delete" || event.key === "Backspace")
+      ) {
+        if (!state.selectedNodeIds.length && !state.selectedEdgeIds.length)
+          return;
+        event.preventDefault();
+        state.apply({
+          type: "selection.delete",
+          nodeIds: state.selectedNodeIds,
+          edgeIds: state.selectedEdgeIds,
+        });
+        store.getState().select([], []);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [store]);
   const canvasRef = useRef<HTMLElement>(null);
   const flow = useReactFlow();
   const mode = useStore(store, (state) => state.mode);

@@ -128,3 +128,15 @@
     @apply font-sans;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .react-flow__edge.animated path,
+  .react-flow__edge.animated .react-flow__edge-path {
+    animation: none !important;
+  }
+}
+
+.dark .text-slate-500,
+.dark .text-slate-600 {
+  color: #94a3b8;
+}

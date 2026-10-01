@@ -65,6 +65,7 @@ export function Taskbar({
   }
   return (
     <header className="z-10 flex h-16 shrink-0 items-center gap-3 border-b border-white/10 bg-[#11151d] px-4 shadow-lg shadow-black/10">
+      <h1 className="sr-only">Flow Canvas studio</h1>
       <Link
         href="/"
         className="flex shrink-0 items-center gap-2 font-semibold tracking-tight"

@@ -20,7 +20,6 @@ import {
   type NodeChange,
   type NodeProps,
   useReactFlow,
-  useNodesInitialized,
 } from "@xyflow/react";
 import type { ModuleRegistry } from "../../core/modules/registry";
 import {
@@ -53,8 +52,13 @@ export function Canvas({
   );
   const project = useStore(store, (state) => state.history.present);
   const fitInitialProject = useRef(project.nodes.length > 0);
-  const didInitialFit = useRef(false);
-  const nodesInitialized = useNodesInitialized();
+  const initialFitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (initialFitTimer.current) clearTimeout(initialFitTimer.current);
+    },
+    [],
+  );
   const selectedNodeIds = useStore(store, (state) => state.selectedNodeIds);
   const selectedEdgeIds = useStore(store, (state) => state.selectedEdgeIds);
   const movementDraft = useStore(store, (state) => state.movementDraft);
@@ -62,15 +66,12 @@ export function Canvas({
   const overlay = useStore(store, (state) => state.playback?.snapshot.overlay);
   const flow = useReactFlow<ModuleFlowNode>();
   useEffect(() => {
-    if (
-      !fitInitialProject.current ||
-      didInitialFit.current ||
-      !nodesInitialized
-    )
-      return;
-    didInitialFit.current = true;
-    void flow.fitView({ padding: 0.18, maxZoom: 1 });
-  }, [flow, nodesInitialized]);
+    if (mode !== "present" || project.nodes.length === 0) return;
+    const timer = setTimeout(() => {
+      void flow.fitView({ padding: 0.17, maxZoom: 1.1, duration: 0 });
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [flow, mode, project.id, project.nodes.length]);
   const [error, setError] = useState("");
   const projected = useMemo(
     () =>
@@ -231,6 +232,13 @@ export function Canvas({
       onDrop={drop}
     >
       <ReactFlow
+        onInit={(instance) => {
+          if (!fitInitialProject.current) return;
+          if (initialFitTimer.current) clearTimeout(initialFitTimer.current);
+          initialFitTimer.current = setTimeout(() => {
+            void instance.fitView({ padding: 0.16, maxZoom: 0.9, duration: 0 });
+          }, 120);
+        }}
         nodes={projected.nodes}
         edges={projected.edges}
         nodeTypes={nodeTypes}
