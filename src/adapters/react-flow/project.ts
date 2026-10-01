@@ -2,12 +2,11 @@ import type { Edge, Node } from "@xyflow/react";
 import type { ModuleRegistry } from "../../core/modules/registry";
 import type { PortDefinition } from "../../core/modules/contracts";
 import type { VisualizerProject } from "../../core/project/schema";
+import type { Overlay, VisualStatus } from "../../core/scenario/reducer";
 
-export type VisualStatus = "idle" | "active" | "success" | "warning" | "error";
-export type ProjectionOverlay = {
-  nodeStatus?: Record<string, VisualStatus>;
-  edgeStatus?: Record<string, VisualStatus>;
-};
+export type ProjectionOverlay = Partial<
+  Pick<Overlay, "nodeStatus" | "edgeStatus">
+>;
 export type ModuleNodeData = {
   title: string;
   label: string;
