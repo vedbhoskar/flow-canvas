@@ -43,6 +43,7 @@ export function Canvas({
   const selectedEdgeIds = useStore(store, (state) => state.selectedEdgeIds);
   const movementDraft = useStore(store, (state) => state.movementDraft);
   const mode = useStore(store, (state) => state.mode);
+  const overlay = useStore(store, (state) => state.playback?.snapshot.overlay);
   const flow = useReactFlow<ModuleFlowNode>();
   const [error, setError] = useState("");
   const projected = useMemo(
@@ -53,8 +54,16 @@ export function Canvas({
         selectedNodeIds,
         selectedEdgeIds,
         movementDraft,
+        overlay,
       ),
-    [project, registry, selectedNodeIds, selectedEdgeIds, movementDraft],
+    [
+      project,
+      registry,
+      selectedNodeIds,
+      selectedEdgeIds,
+      movementDraft,
+      overlay,
+    ],
   );
   const editable = mode === "edit";
 

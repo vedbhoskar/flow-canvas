@@ -74,7 +74,7 @@ describe("studio shell", () => {
     expect(screen.getByRole("button", { name: /play/i })).toBeDisabled();
     expect(screen.getByRole("button", { name: /play/i })).toHaveAttribute(
       "title",
-      "Playback is under construction",
+      "Enter Simulate mode to enable playback",
     );
   });
 });

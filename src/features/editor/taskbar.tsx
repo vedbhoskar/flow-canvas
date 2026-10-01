@@ -9,9 +9,6 @@ import {
   IconLayoutSidebarRightCollapse,
   IconArrowBackUp,
   IconArrowForwardUp,
-  IconPlayerPlay,
-  IconPlayerPause,
-  IconPlayerTrackNext,
   IconZoomIn,
   IconZoomOut,
   IconFocusCentered,
@@ -23,11 +20,14 @@ import type { EditorStore } from "./editor";
 import type { ModuleRegistry } from "../../core/modules/registry";
 import type { ProjectPersistence } from "./persistence";
 import { ProjectFiles } from "./project-files";
+import { PlaybackControls } from "./playback-controls";
+import type { PlaybackClock } from "../../core/scenario/controller";
 
 export function Taskbar({
   store,
   registry,
   persistence,
+  clockFactory,
   showPalette,
   showInspector,
   onTogglePalette,
@@ -36,6 +36,7 @@ export function Taskbar({
   store: EditorStore;
   registry: ModuleRegistry;
   persistence: ProjectPersistence;
+  clockFactory(): PlaybackClock;
   showPalette: boolean;
   showInspector: boolean;
   onTogglePalette(): void;
@@ -194,35 +195,7 @@ export function Taskbar({
           <IconTrash />
         </Button>
       </div>
-      <div className="hidden items-center gap-1 rounded-lg border border-white/10 bg-white/[.03] p-1 md:flex">
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Play"
-          disabled
-          title="Playback is under construction"
-        >
-          <IconPlayerPlay />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Pause"
-          disabled
-          title="Playback is under construction"
-        >
-          <IconPlayerPause />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Step"
-          disabled
-          title="Playback is under construction"
-        >
-          <IconPlayerTrackNext />
-        </Button>
-      </div>
+      <PlaybackControls store={store} clockFactory={clockFactory} />
       <span className="rounded-full border border-violet-400/30 bg-violet-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-violet-300">
         {mode}
       </span>

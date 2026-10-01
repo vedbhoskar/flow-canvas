@@ -59,6 +59,19 @@ export function projectToFlow(
       label: edge.label,
       selected: selectedEdgeIds.includes(edge.id),
       data: { status: overlay.edgeStatus?.[edge.id] ?? "idle" },
+      style: {
+        stroke: (
+          {
+            idle: "#677388",
+            active: "#22d3ee",
+            success: "#34d399",
+            warning: "#fbbf24",
+            error: "#fb7185",
+          } as const
+        )[overlay.edgeStatus?.[edge.id] ?? "idle"],
+        strokeWidth: overlay.edgeStatus?.[edge.id] ? 2.5 : 1.5,
+      },
+      animated: overlay.edgeStatus?.[edge.id] === "active",
     })),
   };
 }

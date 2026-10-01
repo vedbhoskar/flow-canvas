@@ -28,9 +28,11 @@ const icons = [
 export function Palette({
   registry,
   onAdd,
+  editable = true,
 }: {
   registry: ModuleRegistry;
   onAdd(type: string): void;
+  editable?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const modules = useMemo(
@@ -81,7 +83,13 @@ export function Palette({
             <button
               key={module.type}
               type="button"
-              draggable
+              draggable={editable}
+              disabled={!editable}
+              title={
+                editable
+                  ? "Click or drag onto the canvas"
+                  : "Editing is available in Edit mode"
+              }
               onDragStart={(event) =>
                 event.dataTransfer.setData(
                   "application/flow-canvas-module",
