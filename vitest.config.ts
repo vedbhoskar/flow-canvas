@@ -12,6 +12,11 @@ export default defineConfig({
     exclude: ["e2e/**", "node_modules/**"],
     environment: "node",
     setupFiles: ["./tests/setup-dom.ts"],
-    coverage: { provider: "v8", include: ["src/core/**/*.{ts,tsx}"] },
+    coverage: {
+      provider: "v8",
+      include: ["src/core/**/*.ts"],
+      exclude: ["src/core/**/*.d.ts"],
+      thresholds: { statements: 90, functions: 90, lines: 90, branches: 85 },
+    },
   },
 });

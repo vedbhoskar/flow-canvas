@@ -4,9 +4,10 @@ test.use({ viewport: { width: 1280, height: 720 }, reducedMotion: "reduce" });
 
 test("deterministic gallery, editor, paused and presentation views", async ({
   page,
+  browserName,
 }) => {
   test.skip(
-    process.platform !== "darwin",
+    process.platform !== "darwin" || browserName !== "chromium",
     "Reference images were reviewed on macOS Chromium",
   );
   await page.goto("/");

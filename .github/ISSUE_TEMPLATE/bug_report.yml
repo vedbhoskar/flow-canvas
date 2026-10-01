@@ -1,0 +1,32 @@
+name: Bug report
+description: Report reproducible Flow Canvas behavior
+title: "bug: "
+labels: [bug]
+body:
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Include a minimal example project if safe to share.
+      placeholder: "1. Open... 2. Click... 3. Observe..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and operating system
+      placeholder: "Chrome 128 on macOS 15"
+    validations:
+      required: true

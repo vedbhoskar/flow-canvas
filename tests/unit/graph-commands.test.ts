@@ -66,6 +66,40 @@ const document = () => ({
 });
 
 describe("graph commands", () => {
+  it("rejects edits to missing nodes without mutating the document", () => {
+    const original = document();
+    const commands = [
+      { type: "node.rename" as const, nodeId: "missing", label: "Ghost" },
+      {
+        type: "node.config" as const,
+        nodeId: "missing",
+        config: { description: "Ghost" },
+      },
+      {
+        type: "node.update" as const,
+        nodeId: "missing",
+        label: "Ghost",
+        config: { description: "Ghost" },
+      },
+      {
+        type: "nodes.move" as const,
+        positions: [{ nodeId: "missing", position: { x: 1, y: 2 } }],
+      },
+      {
+        type: "selection.duplicate" as const,
+        nodeIds: ["missing"],
+        newNodeIds: { missing: "copy" },
+        newEdgeIds: {},
+      },
+    ];
+    for (const command of commands) {
+      const result = applyGraphCommand(original, command, registry);
+      expect(result.ok).toBe(false);
+      if (!result.ok)
+        expect(result.errors[0]?.message).toBe("Node does not exist");
+    }
+    expect(original.nodes.map((item) => item.id)).toEqual(["a", "b"]);
+  });
   it("adds and connects valid elements", () => {
     const added = applyGraphCommand(
       document(),
