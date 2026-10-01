@@ -25,7 +25,13 @@ const icons = [
   IconNote,
 ];
 
-export function Palette({ registry }: { registry: ModuleRegistry }) {
+export function Palette({
+  registry,
+  onAdd,
+}: {
+  registry: ModuleRegistry;
+  onAdd(type: string): void;
+}) {
   const [query, setQuery] = useState("");
   const modules = useMemo(
     () =>
@@ -75,9 +81,15 @@ export function Palette({ registry }: { registry: ModuleRegistry }) {
             <button
               key={module.type}
               type="button"
-              disabled
-              title="Adding modules arrives with the canvas editor"
-              className="mb-1 flex w-full items-center gap-3 rounded-lg border border-transparent px-2 py-2 text-left text-sm text-slate-300 opacity-80 hover:bg-white/5"
+              draggable
+              onDragStart={(event) =>
+                event.dataTransfer.setData(
+                  "application/flow-canvas-module",
+                  module.type,
+                )
+              }
+              onClick={() => onAdd(module.type)}
+              className="mb-1 flex w-full items-center gap-3 rounded-lg border border-transparent px-2 py-2 text-left text-sm text-slate-300 hover:border-white/10 hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-violet-400"
             >
               <span className="rounded-md border border-white/10 bg-white/5 p-1.5 text-violet-300">
                 <Icon size={17} />

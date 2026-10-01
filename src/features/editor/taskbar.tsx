@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useStore } from "zustand";
+import { useReactFlow } from "@xyflow/react";
 import {
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarRightCollapse,
@@ -14,6 +15,8 @@ import {
   IconZoomIn,
   IconZoomOut,
   IconFocusCentered,
+  IconCopy,
+  IconTrash,
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import type { EditorStore } from "./editor";
@@ -41,6 +44,9 @@ export function Taskbar({
     (state) => state.history.future.length > 0 && state.mode === "edit",
   );
   const mode = useStore(store, (state) => state.mode);
+  const selectedNodeIds = useStore(store, (state) => state.selectedNodeIds);
+  const selectedEdgeIds = useStore(store, (state) => state.selectedEdgeIds);
+  const flow = useReactFlow();
   const [draft, setDraft] = useState<string | null>(null);
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -104,8 +110,7 @@ export function Taskbar({
           variant="ghost"
           size="icon"
           aria-label="Zoom out"
-          disabled
-          title="Canvas controls arrive with the editor"
+          onClick={() => void flow.zoomOut()}
         >
           <IconZoomOut />
         </Button>
@@ -113,8 +118,7 @@ export function Taskbar({
           variant="ghost"
           size="icon"
           aria-label="Zoom in"
-          disabled
-          title="Canvas controls arrive with the editor"
+          onClick={() => void flow.zoomIn()}
         >
           <IconZoomIn />
         </Button>
@@ -122,10 +126,60 @@ export function Taskbar({
           variant="ghost"
           size="icon"
           aria-label="Fit view"
-          disabled
-          title="Canvas controls arrive with the editor"
+          onClick={() => void flow.fitView({ duration: 300 })}
         >
           <IconFocusCentered />
+        </Button>
+      </div>
+      <div className="hidden items-center gap-1 rounded-lg border border-white/10 bg-white/[.03] p-1 md:flex">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Duplicate selection"
+          disabled={mode !== "edit" || selectedNodeIds.length === 0}
+          onClick={() => {
+            const project = store.getState().history.present;
+            const selected = new Set(selectedNodeIds);
+            const newNodeIds = Object.fromEntries(
+              selectedNodeIds.map((id) => [id, crypto.randomUUID()]),
+            );
+            const newEdgeIds = Object.fromEntries(
+              project.edges
+                .filter(
+                  (edge) =>
+                    selected.has(edge.sourceNodeId) &&
+                    selected.has(edge.targetNodeId),
+                )
+                .map((edge) => [edge.id, crypto.randomUUID()]),
+            );
+            store.getState().apply({
+              type: "selection.duplicate",
+              nodeIds: selectedNodeIds,
+              newNodeIds,
+              newEdgeIds,
+            });
+          }}
+        >
+          <IconCopy />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Delete selection"
+          disabled={
+            mode !== "edit" ||
+            (selectedNodeIds.length === 0 && selectedEdgeIds.length === 0)
+          }
+          onClick={() => {
+            store.getState().apply({
+              type: "selection.delete",
+              nodeIds: selectedNodeIds,
+              edgeIds: selectedEdgeIds,
+            });
+            store.getState().select([], []);
+          }}
+        >
+          <IconTrash />
         </Button>
       </div>
       <div className="hidden items-center gap-1 rounded-lg border border-white/10 bg-white/[.03] p-1 md:flex">

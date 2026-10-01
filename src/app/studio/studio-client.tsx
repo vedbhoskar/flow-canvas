@@ -5,6 +5,8 @@ import { createRegistry } from "@/core/modules/registry";
 import type { VisualizerProject } from "@/core/project/schema";
 import { builtInModules } from "@/modules";
 import { Editor } from "@/features/editor/editor";
+import { ReactFlowProvider } from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 
 const registry = createRegistry(builtInModules);
 const initialProject: VisualizerProject = {
@@ -18,5 +20,9 @@ const initialProject: VisualizerProject = {
 
 export default function StudioClient() {
   const [store] = useState(() => initialProject);
-  return <Editor registry={registry} initialProject={store} />;
+  return (
+    <ReactFlowProvider>
+      <Editor registry={registry} initialProject={store} />
+    </ReactFlowProvider>
+  );
 }

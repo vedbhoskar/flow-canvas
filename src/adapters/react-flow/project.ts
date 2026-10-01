@@ -1,0 +1,65 @@
+import type { Edge, Node } from "@xyflow/react";
+import type { ModuleRegistry } from "../../core/modules/registry";
+import type { PortDefinition } from "../../core/modules/contracts";
+import type { VisualizerProject } from "../../core/project/schema";
+
+export type VisualStatus = "idle" | "active" | "success" | "warning" | "error";
+export type ProjectionOverlay = {
+  nodeStatus?: Record<string, VisualStatus>;
+  edgeStatus?: Record<string, VisualStatus>;
+};
+export type ModuleNodeData = {
+  title: string;
+  label: string;
+  category: string;
+  moduleType: string;
+  ports: readonly PortDefinition[];
+  status: VisualStatus;
+};
+export type ModuleFlowNode = Node<ModuleNodeData, "module">;
+export type ModuleFlowEdge = Edge;
+
+export function projectToFlow(
+  project: VisualizerProject,
+  registry: ModuleRegistry,
+  selectedNodeIds: readonly string[] = [],
+  selectedEdgeIds: readonly string[] = [],
+  movementDraft: readonly {
+    nodeId: string;
+    position: { x: number; y: number };
+  }[] = [],
+  overlay: ProjectionOverlay = {},
+): { nodes: ModuleFlowNode[]; edges: ModuleFlowEdge[] } {
+  const draft = new Map(
+    movementDraft.map((item) => [item.nodeId, item.position]),
+  );
+  return {
+    nodes: project.nodes.map((node) => {
+      const definition = registry.get(node.moduleType);
+      return {
+        id: node.id,
+        type: "module",
+        position: draft.get(node.id) ?? node.position,
+        selected: selectedNodeIds.includes(node.id),
+        data: {
+          title: definition?.title ?? node.moduleType,
+          label: node.label,
+          category: definition?.category ?? "Unknown",
+          moduleType: node.moduleType,
+          ports: definition?.ports ?? [],
+          status: overlay.nodeStatus?.[node.id] ?? "idle",
+        },
+      };
+    }),
+    edges: project.edges.map((edge) => ({
+      id: edge.id,
+      source: edge.sourceNodeId,
+      sourceHandle: edge.sourcePortId,
+      target: edge.targetNodeId,
+      targetHandle: edge.targetPortId,
+      label: edge.label,
+      selected: selectedEdgeIds.includes(edge.id),
+      data: { status: overlay.edgeStatus?.[edge.id] ?? "idle" },
+    })),
+  };
+}

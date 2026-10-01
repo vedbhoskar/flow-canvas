@@ -1,9 +1,11 @@
 import type { ModuleDefinition } from "./contracts";
+import type { VisualizerNode } from "../project/schema";
+import { z } from "zod";
 
 export type ModuleRegistry = {
   get(type: string): ModuleDefinition | undefined;
   list(): readonly ModuleDefinition[];
-  createConfig(type: string): unknown;
+  createConfig(type: string): VisualizerNode["config"];
 };
 
 function deepFreeze<T>(value: T): T {
@@ -95,7 +97,7 @@ export function createRegistry(
     createConfig: (type: string) => {
       const definition = byType.get(type);
       if (!definition) throw new Error(`Unknown module type: ${type}`);
-      return structuredClone(definition.defaultConfig);
+      return z.json().parse(structuredClone(definition.defaultConfig));
     },
   });
 }
