@@ -242,7 +242,7 @@ export function Inspector({
   return (
     <aside
       aria-label="Inspector"
-      className="absolute inset-y-0 right-0 z-20 flex w-72 shrink-0 flex-col border-l border-white/10 bg-[#11151d] shadow-xl shadow-black/30 lg:relative lg:shadow-none xl:w-80"
+      className="absolute inset-y-0 right-0 z-20 flex w-72 shrink-0 flex-col border-l border-white/10 bg-[#11151d] shadow-xl shadow-black/30 xl:relative xl:w-80 xl:shadow-none"
     >
       <div className="border-b border-white/10 px-4 py-4">
         <h2 className="text-sm font-semibold">Inspector</h2>
