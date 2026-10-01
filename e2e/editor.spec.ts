@@ -93,3 +93,23 @@ test("drop coordinates remain correct after zoom and a node drag is one undoable
   const restored = await node.boundingBox();
   expect(Math.abs(restored!.x - before!.x)).toBeLessThan(3);
 });
+
+test("inspector saves a property and undo restores it", async ({ page }) => {
+  await page.goto("/studio");
+  await page.getByRole("button", { name: /Process Basics/ }).click();
+  await page.locator(".react-flow__node").click();
+  const inspector = page.getByRole("complementary", { name: "Inspector" });
+  await inspector
+    .getByRole("textbox", { name: "Node label" })
+    .fill("New process");
+  await inspector
+    .getByRole("textbox", { name: "Description" })
+    .fill("Checks the request");
+  await inspector.getByRole("button", { name: "Save properties" }).click();
+  await expect(page.locator(".react-flow__node")).toContainText("New process");
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.locator(".react-flow__node")).toContainText("Process");
+  await expect(
+    inspector.getByRole("textbox", { name: "Description" }),
+  ).toHaveValue("");
+});

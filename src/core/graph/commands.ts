@@ -11,6 +11,7 @@ export type GraphCommand =
   | { type: "node.add"; node: VisualizerNode }
   | { type: "node.rename"; nodeId: string; label: string }
   | { type: "node.config"; nodeId: string; config: unknown }
+  | { type: "node.update"; nodeId: string; label: string; config: unknown }
   | {
       type: "nodes.move";
       positions: { nodeId: string; position: { x: number; y: number } }[];
@@ -62,6 +63,18 @@ export function applyGraphCommand(
         nodes: document.nodes.map((node) =>
           node.id === command.nodeId
             ? { ...node, config: command.config }
+            : node,
+        ),
+      };
+      break;
+    case "node.update":
+      if (!document.nodes.some((node) => node.id === command.nodeId))
+        return error("Node does not exist");
+      candidate = {
+        ...document,
+        nodes: document.nodes.map((node) =>
+          node.id === command.nodeId
+            ? { ...node, label: command.label, config: command.config }
             : node,
         ),
       };

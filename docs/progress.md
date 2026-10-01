@@ -11,7 +11,8 @@ The planned slices are described in [implementation.md](implementation.md).
 | 04    | complete | Four expected failures against history/store stubs                                                                                             | `npm run verify` passed: 45 total tests, types, boundaries, lint, format, build                             | See Git history | None                                                                                                                                                               |
 | 05    | complete | Three shell tests failed against the route stub; Vite alias error surfaced when the client boundary loaded                                     | `npm run verify` passed: 50 tests, lint, types, boundaries, production build; 390×844 and 1280×720 reviewed | See Git history | New/Open and mode-switching are deferred until their persistence/playback slices. Generated shadcn 4.21.0 added Base UI, icon, animation and utility dependencies. |
 | 06    | complete | Browser tests first caught controlled-selection and empty-canvas auto-zoom failures; connection/undo and drag tests caught interaction details | `npm run verify` passed: 52 tests; four Chromium browser cases passed against the production build          | See Git history | Firefox and WebKit projects are configured but not installed or run on this host. Initial empty canvas starts at 100% instead of auto-fit.                         |
-| 07–14 | pending  | Not run                                                                                                                                        | Not run                                                                                                     | None            | None                                                                                                                                                               |
+| 07    | complete | Three inspector tests failed against the placeholder panel before the form was implemented                                                     | `npm run verify` passed: 57 tests; five Chromium browser cases passed against the production build          | See Git history | Label and configuration now share one atomic graph command; the inspector deliberately uses native form controls.                                                  |
+| 08–14 | pending  | Not run                                                                                                                                        | Not run                                                                                                     | None            | None                                                                                                                                                               |
 
 Handoff after 00: the local repository is independent and connected to
 `https://github.com/vedbhoskar/flow-canvas`. Next execute slice 01: project
@@ -48,3 +49,9 @@ and drag, compatible port connections, duplicate/delete, undo and zoom/fit are
 working. Four production-backed Chromium tests pass, including zoom-correct
 drops and a single undoable node drag. Next execute slice 07: module field
 configuration in the inspector.
+
+Handoff after 07: all four declared field kinds render through explicit
+descriptor switches. Invalid numeric/select input and unknown modules fail
+safely. Selection changes discard drafts, non-Edit mode disables the form, and
+one browser case verifies save plus undo. Next execute slice 08: validated
+project files and recoverable autosave.

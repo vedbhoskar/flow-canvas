@@ -84,7 +84,7 @@ export function Editor({
           <Canvas store={store} registry={registry} canvasRef={canvasRef} />
           <Timeline />
         </div>
-        {showInspector && <Inspector />}
+        {showInspector && <Inspector store={store} registry={registry} />}
       </div>
     </div>
   );
