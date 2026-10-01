@@ -103,3 +103,31 @@ test("mobile panels stay available without horizontal page overflow", async ({
     page.getByRole("complementary", { name: "Inspector" }),
   ).toBeVisible();
 });
+
+test("mid-width studio gives the graph room and keeps panels one click away", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 840, height: 900 });
+  await page.goto("/studio?example=api-lifecycle");
+  await expect(
+    page.getByRole("complementary", { name: "Modules" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("complementary", { name: "Inspector" }),
+  ).toHaveCount(0);
+  await expect(page.locator(".react-flow__node")).toHaveCount(5);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth,
+    ),
+  ).toBe(false);
+  await page.getByRole("button", { name: "Toggle modules" }).click();
+  await expect(
+    page.getByRole("searchbox", { name: "Search modules" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Toggle modules" }).click();
+  await page.getByRole("button", { name: "Toggle inspector" }).click();
+  await expect(
+    page.getByRole("complementary", { name: "Inspector" }),
+  ).toBeVisible();
+});

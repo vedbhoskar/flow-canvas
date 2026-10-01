@@ -34,7 +34,7 @@ export function Palette({
   return (
     <aside
       aria-label="Modules"
-      className="absolute inset-y-0 left-0 z-20 flex w-60 shrink-0 flex-col border-r border-white/10 bg-[#11151d] shadow-xl shadow-black/30 md:relative md:shadow-none xl:w-64"
+      className="absolute inset-y-0 left-0 z-20 flex w-60 shrink-0 flex-col border-r border-white/10 bg-[#11151d] shadow-xl shadow-black/30 xl:relative xl:w-64 xl:shadow-none"
     >
       <div className="border-b border-white/10 px-4 py-4">
         <h2 className="text-sm font-semibold">Module library</h2>

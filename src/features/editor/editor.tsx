@@ -21,7 +21,7 @@ const emptyPresentations: ModulePresentationMap = {};
 
 function subscribeToDesktop(onChange: () => void) {
   if (typeof window.matchMedia !== "function") return () => {};
-  const query = window.matchMedia("(min-width: 768px)");
+  const query = window.matchMedia("(min-width: 1280px)");
   query.addEventListener("change", onChange);
   return () => query.removeEventListener("change", onChange);
 }
@@ -29,7 +29,7 @@ function subscribeToDesktop(onChange: () => void) {
 function isDesktop() {
   return (
     typeof window.matchMedia !== "function" ||
-    window.matchMedia("(min-width: 768px)").matches
+    window.matchMedia("(min-width: 1280px)").matches
   );
 }
 
