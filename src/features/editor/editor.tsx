@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useReactFlow } from "@xyflow/react";
 import type { ModuleRegistry } from "../../core/modules/registry";
 import type { VisualizerProject } from "../../core/project/schema";
@@ -10,6 +10,7 @@ import { Palette } from "./palette";
 import { Inspector } from "./inspector";
 import { Timeline } from "./timeline";
 import { Canvas } from "./canvas";
+import { ProjectPersistence } from "./persistence";
 
 export type EditorStore = ReturnType<typeof createEditorStore>;
 
@@ -35,6 +36,11 @@ export function Editor({
   initialProject: VisualizerProject;
 }) {
   const [store] = useState(() => createEditorStore(initialProject, registry));
+  const [persistence] = useState(() => new ProjectPersistence(store, registry));
+  useEffect(() => {
+    persistence.start();
+    return () => persistence.dispose();
+  }, [persistence]);
   const canvasRef = useRef<HTMLElement>(null);
   const flow = useReactFlow();
   const desktop = useSyncExternalStore(
@@ -73,6 +79,8 @@ export function Editor({
     <div className="flex h-screen min-h-[600px] flex-col overflow-hidden bg-[#090b10] text-slate-100">
       <Taskbar
         store={store}
+        registry={registry}
+        persistence={persistence}
         showPalette={showPalette}
         showInspector={showInspector}
         onTogglePalette={() => setPalettePreference(!showPalette)}

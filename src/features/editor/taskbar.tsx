@@ -20,15 +20,22 @@ import {
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import type { EditorStore } from "./editor";
+import type { ModuleRegistry } from "../../core/modules/registry";
+import type { ProjectPersistence } from "./persistence";
+import { ProjectFiles } from "./project-files";
 
 export function Taskbar({
   store,
+  registry,
+  persistence,
   showPalette,
   showInspector,
   onTogglePalette,
   onToggleInspector,
 }: {
   store: EditorStore;
+  registry: ModuleRegistry;
+  persistence: ProjectPersistence;
   showPalette: boolean;
   showInspector: boolean;
   onTogglePalette(): void;
@@ -85,6 +92,11 @@ export function Taskbar({
           onBlur={() => setDraft(null)}
         />
       </form>
+      <ProjectFiles
+        store={store}
+        registry={registry}
+        persistence={persistence}
+      />
       <div className="hidden items-center gap-1 rounded-lg border border-white/10 bg-white/[.03] p-1 sm:flex">
         <Button
           variant="ghost"

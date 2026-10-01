@@ -81,4 +81,25 @@ describe("editor store", () => {
     expect(store.getState().history.future).toHaveLength(0);
     expect(store.getState().history.present.name).toBe("Third");
   });
+
+  it("replaces only valid projects and clears document history and selection", () => {
+    const store = createEditorStore(initial(), registry);
+    store.getState().apply({ type: "project.rename", name: "Changed" });
+    store.getState().select(["n"], []);
+    expect(
+      store.getState().replaceProject({
+        ...initial(),
+        nodes: [{ ...initial().nodes[0], moduleType: "missing.type" }],
+      }).ok,
+    ).toBe(false);
+    expect(store.getState().history.present.name).toBe("Changed");
+    expect(
+      store
+        .getState()
+        .replaceProject({ ...initial(), id: "other", name: "Other" }).ok,
+    ).toBe(true);
+    expect(store.getState().history.present.name).toBe("Other");
+    expect(store.getState().history.past).toHaveLength(0);
+    expect(store.getState().selectedNodeIds).toEqual([]);
+  });
 });

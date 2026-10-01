@@ -12,7 +12,8 @@ The planned slices are described in [implementation.md](implementation.md).
 | 05    | complete | Three shell tests failed against the route stub; Vite alias error surfaced when the client boundary loaded                                     | `npm run verify` passed: 50 tests, lint, types, boundaries, production build; 390×844 and 1280×720 reviewed | See Git history | New/Open and mode-switching are deferred until their persistence/playback slices. Generated shadcn 4.21.0 added Base UI, icon, animation and utility dependencies. |
 | 06    | complete | Browser tests first caught controlled-selection and empty-canvas auto-zoom failures; connection/undo and drag tests caught interaction details | `npm run verify` passed: 52 tests; four Chromium browser cases passed against the production build          | See Git history | Firefox and WebKit projects are configured but not installed or run on this host. Initial empty canvas starts at 100% instead of auto-fit.                         |
 | 07    | complete | Three inspector tests failed against the placeholder panel before the form was implemented                                                     | `npm run verify` passed: 57 tests; five Chromium browser cases passed against the production build          | See Git history | Label and configuration now share one atomic graph command; the inspector deliberately uses native form controls.                                                  |
-| 08–14 | pending  | Not run                                                                                                                                        | Not run                                                                                                     | None            | None                                                                                                                                                               |
+| 08    | complete | Serializer and storage tests failed against explicit stubs; browser import assertion was refined to avoid Next's route announcer               | `npm run verify` passed: 67 tests; nine Chromium browser cases passed against the production build          | See Git history | Local storage is optional; corrupt saved data blocks automatic overwrite until an explicit replacement.                                                            |
+| 09–14 | pending  | Not run                                                                                                                                        | Not run                                                                                                     | None            | None                                                                                                                                                               |
 
 Handoff after 00: the local repository is independent and connected to
 `https://github.com/vedbhoskar/flow-canvas`. Next execute slice 01: project
@@ -55,3 +56,9 @@ descriptor switches. Invalid numeric/select input and unknown modules fail
 safely. Selection changes discard drafts, non-Edit mode disables the form, and
 one browser case verifies save plus undo. Next execute slice 08: validated
 project files and recoverable autosave.
+
+Handoff after 08: JSON import/export validates the same document schema as
+editing. A 500 ms local autosave hydrates before its first write, preserves
+corrupt data for explicit recovery, reports storage failures, and flushes
+pending work before project replacement. New/Open require confirmation when
+work would be replaced. Next execute slice 09: the pure scenario reducer.

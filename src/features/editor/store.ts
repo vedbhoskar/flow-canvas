@@ -2,6 +2,7 @@ import { createStore } from "zustand/vanilla";
 import type { ModuleRegistry } from "../../core/modules/registry";
 import type { GraphCommand } from "../../core/graph/commands";
 import { applyGraphCommand } from "../../core/graph/commands";
+import { validateProject } from "../../core/project/validate";
 import type { Result, VisualizerProject } from "../../core/project/schema";
 import {
   createHistory,
@@ -20,6 +21,7 @@ export type EditorState = {
   viewport: { x: number; y: number; zoom: number };
   movementDraft: { nodeId: string; position: { x: number; y: number } }[];
   apply(command: GraphCommand): Result<VisualizerProject>;
+  replaceProject(project: unknown): Result<VisualizerProject>;
   undo(): void;
   redo(): void;
   select(nodeIds: string[], edgeIds: string[]): void;
@@ -63,6 +65,29 @@ export function createEditorStore(
       if (result.ok && result.value !== current.history.present)
         set({ history: pushHistory(current.history, result.value) });
       return result;
+    },
+    replaceProject: (project) => {
+      if (get().mode !== "edit")
+        return {
+          ok: false,
+          errors: [
+            {
+              code: "read_only",
+              path: "",
+              message: "Open a project in Edit mode",
+            },
+          ],
+        };
+      const parsed = validateProject(project, registry);
+      if (!parsed.ok) return parsed;
+      set({
+        history: createHistory(parsed.value),
+        selectedNodeIds: [],
+        selectedEdgeIds: [],
+        movementDraft: [],
+        viewport: parsed.value.viewport ?? { x: 0, y: 0, zoom: 1 },
+      });
+      return parsed;
     },
     undo: () => {
       if (get().mode === "edit")
